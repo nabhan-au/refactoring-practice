@@ -1,6 +1,10 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 
+CANVAS_WIDTH = 800
+CANVAS_HEIGHT = 500
+TIME_DELAY = 33
+
 class GameCanvasElement():
     """Base class for an element on the game canvas, with attributes:
 
@@ -36,7 +40,11 @@ class GameCanvasElement():
         if self.is_visible:
             self.canvas.coords(self.canvas_object_id, self.x, self.y)
 
+    # Hoodemethod
     def init_canvas_object(self):
+        """A method that a subclass can override to initialize itself After 
+        it has been added to the canvas.
+        """
         pass
 
     def init_element(self):
@@ -83,7 +91,10 @@ class GameApp(ttk.Frame):
     on the canvas, start/stop animation, and running the animation loop.
     """
     
-    def __init__(self, parent, canvas_width=800, canvas_height=500, update_delay=33):
+    def __init__(self, parent,
+                 canvas_width=CANVAS_WIDTH,
+                 canvas_height=CANVAS_HEIGHT,
+                 update_delay=TIME_DELAY):
         super().__init__(parent)
         self.parent = parent
         
@@ -92,8 +103,8 @@ class GameApp(ttk.Frame):
         
         self.update_delay = update_delay
 
-        self.grid(sticky="news")
-        self.create_canvas()
+        self.grid(sticky=tk.NSEW)
+        self.canvas = self.create_canvas(canvas_width, canvas_height)
 
         self.elements = []
         self.init_game()
@@ -102,11 +113,14 @@ class GameApp(ttk.Frame):
         self.parent.bind('<KeyRelease>', self.on_key_released)
         
     #TODO refactor this - don't depend on side effects
-    def create_canvas(self):
-        self.canvas = tk.Canvas(self, borderwidth=0,
-            width=self.canvas_width, height=self.canvas_height, 
-            highlightthickness=0)
-        self.canvas.grid(sticky="news")
+    # replace side effect with return value
+    # add paramenter instead of accessing attributes
+    def create_canvas(self, width, height):
+        # "side effect" - calling this method initializes the cavas attribute
+        canvas = tk.Canvas(self, borderwidth=0, width=width, height=height, 
+                           highlightthickness=0)
+        canvas.grid(sticky="news")
+        return canvas
 
     def animate(self):
         self.pre_update()
@@ -121,6 +135,17 @@ class GameApp(ttk.Frame):
 
     def start(self):
         self.after(0, self.animate)
+
+    def add_element(self, element: GameCanvasElement):
+        """Add an element to the game"""
+        self.elements.append(element)
+
+    def remove_element(self, element: GameCanvasElement):
+        """Remove an element from the game"""
+        if not element in self.elements:
+            self.elements.remove(element)
+            # remove from the canvas too.
+            self.canvas.delete(element.init_canvas_object_id)
 
     def init_game(self):
         pass

@@ -11,6 +11,9 @@ Each subdirectory contains some code that needs refactoring.
 ## `time/timestamp.py`
 
 Refactor timestamp.py.  2 or 3 refactorings are possible.
+ - extract method
+ - rename function
+ - rename variable
 
 
 ## `game_framework/gamelib.py`
@@ -35,7 +38,7 @@ The Recipe class defines a recipe for a hot beverage with attributes:
 * price - (float) price in Baht
 
 Refactor `main.py`.  What can you do to eliminate the long, boring code?
-
+  - extract method (add function)
 
 
 
